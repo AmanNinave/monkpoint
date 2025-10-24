@@ -7,8 +7,19 @@
 Add these to your `.env` file and Vercel environment variables:
 
 ```bash
+# Database Configuration
+DATABASE_URL="postgresql://postgres:password@localhost:5432/hackthon_db?schema=public"
+
+# JWT Configuration
+JWT_SECRET="your_jwt_secret_here"
+JWT_EXPIRES_IN="7d"
+
 # OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY="your_openai_api_key_here"
+
+# Environment
+NODE_ENV="development"
+PORT=3001
 ```
 
 ### **Getting OpenAI API Key:**

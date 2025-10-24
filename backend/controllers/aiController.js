@@ -3,17 +3,17 @@ import aiService from '../services/aiService.js';
 // Initialize AI Assistant
 const initializeAI = async (req, res) => {
   try {
-    const assistantId = await aiService.initializeAssistant();
+    const agentId = await aiService.initializeAssistant();
     res.json({
       success: true,
-      message: 'AI Assistant initialized successfully',
-      assistantId
+      message: 'MonkPoint AI Agent initialized successfully',
+      agentId
     });
   } catch (error) {
     console.error('AI initialization error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to initialize AI assistant'
+      error: 'Failed to initialize AI agent'
     });
   }
 };
@@ -42,14 +42,16 @@ const sendMessage = async (req, res) => {
     const { threadId, message } = req.body;
     const userId = req.user.id;
 
-    if (!threadId || !message) {
+    if (!message) {
       return res.status(400).json({
         success: false,
-        error: 'Thread ID and message are required'
+        error: 'Message is required'
       });
     }
 
-    const response = await aiService.sendMessage(threadId, message, userId);
+    // Create thread if not provided (new agents framework handles this automatically)
+    const actualThreadId = threadId || await aiService.createThread();
+    const response = await aiService.sendMessage(actualThreadId, message, userId);
     
     res.json({
       success: true,
@@ -60,7 +62,7 @@ const sendMessage = async (req, res) => {
     console.error('Message sending error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to send message to AI assistant'
+      error: 'Failed to send message to AI agent'
     });
   }
 };

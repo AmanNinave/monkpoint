@@ -1,14 +1,11 @@
-import OpenAI from 'openai';
+import { Agent, run, tool } from '@openai/agents';
+import { z } from 'zod';
 import prisma from '../db.js';
 
 class AIService {
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-    
-    // AI Assistant configuration
-    this.assistantConfig = {
+    // Initialize the main MonkPoint AI agent
+    this.agent = new Agent({
       name: "MonkPoint AI Assistant",
       instructions: `You are MonkPoint AI, a mindful habit tracking assistant. Your role is to help users with:
 
@@ -26,216 +23,128 @@ Guidelines:
 - Be encouraging but realistic
 - Respect user's spiritual journey
 - Use meditation and mindfulness principles`,
-      model: "gpt-4o-mini",
       tools: [
-        {
-          type: "function",
-          function: {
-            name: "get_user_habits",
-            description: "Get user's current habits and their completion status",
-            parameters: {
-              type: "object",
-              properties: {
-                userId: {
-                  type: "string",
-                  description: "The user's ID"
-                }
-              },
-              required: ["userId"]
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "get_user_goals",
-            description: "Get user's current goals and progress",
-            parameters: {
-              type: "object",
-              properties: {
-                userId: {
-                  type: "string",
-                  description: "The user's ID"
-                }
-              },
-              required: ["userId"]
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "get_user_moods",
-            description: "Get user's mood tracking data",
-            parameters: {
-              type: "object",
-              properties: {
-                userId: {
-                  type: "string",
-                  description: "The user's ID"
-                },
-                days: {
-                  type: "number",
-                  description: "Number of days to look back (default: 7)"
-                }
-              },
-              required: ["userId"]
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "create_habit_suggestion",
-            description: "Create a new habit suggestion for the user",
-            parameters: {
-              type: "object",
-              properties: {
-                userId: {
-                  type: "string",
-                  description: "The user's ID"
-                },
-                name: {
-                  type: "string",
-                  description: "Name of the habit"
-                },
-                description: {
-                  type: "string",
-                  description: "Description of the habit"
-                },
-                category: {
-                  type: "string",
-                  description: "Category of the habit (e.g., 'Mindfulness', 'Health', 'Spiritual')"
-                },
-                frequency: {
-                  type: "string",
-                  enum: ["DAILY", "WEEKLY", "MONTHLY"],
-                  description: "How often the habit should be performed"
-                }
-              },
-              required: ["userId", "name", "description", "category", "frequency"]
-            }
-          }
-        },
-        {
-          type: "function",
-          function: {
-            name: "create_goal_suggestion",
-            description: "Create a new goal suggestion for the user",
-            parameters: {
-              type: "object",
-              properties: {
-                userId: {
-                  type: "string",
-                  description: "The user's ID"
-                },
-                title: {
-                  type: "string",
-                  description: "Title of the goal"
-                },
-                description: {
-                  type: "string",
-                  description: "Description of the goal"
-                },
-                targetValue: {
-                  type: "number",
-                  description: "Target value for the goal"
-                },
-                unit: {
-                  type: "string",
-                  description: "Unit of measurement"
-                }
-              },
-              required: ["userId", "title", "description", "targetValue", "unit"]
-            }
-          }
-        }
+        this.getUserHabitsTool(),
+        this.getUserGoalsTool(),
+        this.getUserMoodsTool(),
+        this.createHabitSuggestionTool(),
+        this.createGoalSuggestionTool()
       ]
-    };
+    });
   }
 
-  // Initialize AI Assistant
+  // Tool definitions using the new agents framework
+  getUserHabitsTool() {
+    return tool({
+      name: 'get_user_habits',
+      description: 'Get user\'s current habits and their completion status',
+      parameters: z.object({
+        userId: z.string().describe('The user\'s ID')
+      }),
+      execute: async ({ userId }) => {
+        return await this.getUserHabits(userId);
+      }
+    });
+  }
+
+  getUserGoalsTool() {
+    return tool({
+      name: 'get_user_goals',
+      description: 'Get user\'s current goals and progress',
+      parameters: z.object({
+        userId: z.string().describe('The user\'s ID')
+      }),
+      execute: async ({ userId }) => {
+        return await this.getUserGoals(userId);
+      }
+    });
+  }
+
+  getUserMoodsTool() {
+    return tool({
+      name: 'get_user_moods',
+      description: 'Get user\'s mood tracking data',
+      parameters: z.object({
+        userId: z.string().describe('The user\'s ID'),
+        days: z.number().optional().describe('Number of days to look back (default: 7)')
+      }),
+      execute: async ({ userId, days = 7 }) => {
+        return await this.getUserMoods(userId, days);
+      }
+    });
+  }
+
+  createHabitSuggestionTool() {
+    return tool({
+      name: 'create_habit_suggestion',
+      description: 'Create a new habit suggestion for the user',
+      parameters: z.object({
+        userId: z.string().describe('The user\'s ID'),
+        name: z.string().describe('Name of the habit'),
+        description: z.string().describe('Description of the habit'),
+        category: z.string().describe('Category of the habit (e.g., \'Mindfulness\', \'Health\', \'Spiritual\')'),
+        frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']).describe('How often the habit should be performed')
+      }),
+      execute: async ({ userId, name, description, category, frequency }) => {
+        return await this.createHabitSuggestion(userId, { name, description, category, frequency });
+      }
+    });
+  }
+
+  createGoalSuggestionTool() {
+    return tool({
+      name: 'create_goal_suggestion',
+      description: 'Create a new goal suggestion for the user',
+      parameters: z.object({
+        userId: z.string().describe('The user\'s ID'),
+        title: z.string().describe('Title of the goal'),
+        description: z.string().describe('Description of the goal'),
+        targetValue: z.number().describe('Target value for the goal'),
+        unit: z.string().describe('Unit of measurement')
+      }),
+      execute: async ({ userId, title, description, targetValue, unit }) => {
+        return await this.createGoalSuggestion(userId, { title, description, targetValue, unit });
+      }
+    });
+  }
+
+  // Initialize AI Assistant (simplified with new framework)
   async initializeAssistant() {
     try {
-      // Check if assistant already exists
-      const assistants = await this.openai.beta.assistants.list();
-      const existingAssistant = assistants.data.find(
-        assistant => assistant.name === this.assistantConfig.name
-      );
-
-      if (existingAssistant) {
-        this.assistantId = existingAssistant.id;
-        console.log('Using existing AI assistant:', this.assistantId);
-        return this.assistantId;
-      }
-
-      // Create new assistant
-      const assistant = await this.openai.beta.assistants.create(this.assistantConfig);
-      this.assistantId = assistant.id;
-      console.log('Created new AI assistant:', this.assistantId);
-      return this.assistantId;
+      console.log('MonkPoint AI Agent initialized successfully');
+      return 'agent-initialized';
     } catch (error) {
-      console.error('Error initializing AI assistant:', error);
-      throw new Error('Failed to initialize AI assistant');
+      console.error('Error initializing AI agent:', error);
+      throw new Error('Failed to initialize AI agent');
     }
   }
 
-  // Create a new conversation thread
+  // Create a new conversation thread (simplified with new framework)
   async createThread() {
     try {
-      const thread = await this.openai.beta.threads.create();
-      return thread.id;
+      // With the new agents framework, we don't need explicit thread management
+      return `thread-${Date.now()}`;
     } catch (error) {
       console.error('Error creating thread:', error);
       throw new Error('Failed to create conversation thread');
     }
   }
 
-  // Send message to AI assistant
+  // Send message to AI assistant using the new agents framework
   async sendMessage(threadId, message, userId) {
     try {
-      // Add message to thread
-      await this.openai.beta.threads.messages.create(threadId, {
-        role: "user",
-        content: message
-      });
-
-      // Run the assistant
-      const run = await this.openai.beta.threads.runs.create(threadId, {
-        assistant_id: this.assistantId,
-        additional_instructions: `User ID: ${userId}. Use the available functions to help this user with their mindful journey.`
-      });
-
-      // Wait for completion
-      let runStatus = await this.openai.beta.threads.runs.retrieve(threadId, run.id);
-      while (runStatus.status === 'in_progress' || runStatus.status === 'queued') {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        runStatus = await this.openai.beta.threads.runs.retrieve(threadId, run.id);
-      }
-
-      if (runStatus.status === 'requires_action') {
-        // Handle function calls
-        const toolOutputs = await this.handleFunctionCalls(threadId, run.id, runStatus.required_action.submit_tool_outputs.tool_calls, userId);
-        
-        // Submit tool outputs
-        await this.openai.beta.threads.runs.submitToolOutputs(threadId, run.id, {
-          tool_outputs: toolOutputs
-        });
-
-        // Wait for completion again
-        runStatus = await this.openai.beta.threads.runs.retrieve(threadId, run.id);
-        while (runStatus.status === 'in_progress' || runStatus.status === 'queued') {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          runStatus = await this.openai.beta.threads.runs.retrieve(threadId, run.id);
+      // Use the new agents framework to run the agent
+      const result = await run(this.agent, message, {
+        // Pass user context
+        userContext: { userId },
+        // Set environment variables for the agent
+        env: {
+          OPENAI_API_KEY: process.env.OPENAI_API_KEY
         }
-      }
-
-      // Get the assistant's response
-      const messages = await this.openai.beta.threads.messages.list(threadId);
-      const assistantMessage = messages.data[0];
+      });
       
       return {
-        content: assistantMessage.content[0].text.value,
+        content: result.finalOutput,
         threadId: threadId
       };
     } catch (error) {
@@ -244,51 +153,36 @@ Guidelines:
     }
   }
 
-  // Handle function calls from the AI assistant
-  async handleFunctionCalls(threadId, runId, toolCalls, userId) {
-    const toolOutputs = [];
+  // Get AI insights and recommendations using the new agents framework
+  async getInsights(userId) {
+    try {
+      const prompt = `Based on this user's data, provide personalized insights and recommendations:
 
-    for (const toolCall of toolCalls) {
-      try {
-        let result;
-        
-        switch (toolCall.function.name) {
-          case 'get_user_habits':
-            result = await this.getUserHabits(userId);
-            break;
-          case 'get_user_goals':
-            result = await this.getUserGoals(userId);
-            break;
-          case 'get_user_moods':
-            const days = JSON.parse(toolCall.function.arguments).days || 7;
-            result = await this.getUserMoods(userId, days);
-            break;
-          case 'create_habit_suggestion':
-            const habitArgs = JSON.parse(toolCall.function.arguments);
-            result = await this.createHabitSuggestion(userId, habitArgs);
-            break;
-          case 'create_goal_suggestion':
-            const goalArgs = JSON.parse(toolCall.function.arguments);
-            result = await this.createGoalSuggestion(userId, goalArgs);
-            break;
-          default:
-            result = { error: 'Unknown function' };
+User ID: ${userId}
+
+Please analyze their habits, goals, and mood patterns to provide:
+1. Key insights about their progress
+2. Areas for improvement
+3. Motivational message
+4. Specific recommendations for the next week
+
+Keep it concise, supportive, and actionable.`;
+
+      const result = await run(this.agent, prompt, {
+        userContext: { userId },
+        env: {
+          OPENAI_API_KEY: process.env.OPENAI_API_KEY
         }
-
-        toolOutputs.push({
-          tool_call_id: toolCall.id,
-          output: JSON.stringify(result)
-        });
-      } catch (error) {
-        console.error(`Error handling function call ${toolCall.function.name}:`, error);
-        toolOutputs.push({
-          tool_call_id: toolCall.id,
-          output: JSON.stringify({ error: error.message })
-        });
-      }
+      });
+      
+      return {
+        insights: result.finalOutput,
+        threadId: `insights-${Date.now()}`
+      };
+    } catch (error) {
+      console.error('Error getting AI insights:', error);
+      throw new Error('Failed to get AI insights');
     }
-
-    return toolOutputs;
   }
 
   // Function implementations
@@ -456,39 +350,6 @@ Guidelines:
     return Math.round((actualEntries / expectedEntries) * 100);
   }
 
-  // Get AI insights and recommendations
-  async getInsights(userId) {
-    try {
-      const habits = await this.getUserHabits(userId);
-      const goals = await this.getUserGoals(userId);
-      const moods = await this.getUserMoods(userId, 30);
-
-      const prompt = `Based on this user data, provide personalized insights and recommendations:
-
-Habits: ${JSON.stringify(habits)}
-Goals: ${JSON.stringify(goals)}
-Moods: ${JSON.stringify(moods)}
-
-Provide:
-1. Key insights about their progress
-2. Areas for improvement
-3. Motivational message
-4. Specific recommendations for the next week
-
-Keep it concise, supportive, and actionable.`;
-
-      const threadId = await this.createThread();
-      const response = await this.sendMessage(threadId, prompt, userId);
-      
-      return {
-        insights: response.content,
-        threadId: response.threadId
-      };
-    } catch (error) {
-      console.error('Error getting AI insights:', error);
-      throw new Error('Failed to get AI insights');
-    }
-  }
 }
 
 export default new AIService();

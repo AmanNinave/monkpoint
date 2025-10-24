@@ -7,7 +7,14 @@
 #### **In Vercel Dashboard:**
 1. Go to your backend project settings
 2. Navigate to "Environment Variables"
-3. Add: `OPENAI_API_KEY` = `your_openai_api_key_here`
+3. Add the following variables:
+
+**Required Environment Variables:**
+- `DATABASE_URL` = `your_database_connection_string`
+- `JWT_SECRET` = `your_jwt_secret_here`
+- `JWT_EXPIRES_IN` = `7d`
+- `OPENAI_API_KEY` = `your_openai_api_key_here`
+- `NODE_ENV` = `production`
 
 #### **Get OpenAI API Key:**
 1. Visit [OpenAI Platform](https://platform.openai.com/)
