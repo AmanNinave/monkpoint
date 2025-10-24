@@ -7,6 +7,12 @@ import morgan from 'morgan';
 // Import routes
 import authRoutes from './routes/auth.js';
 import indexRoutes from './routes/index.js';
+import habitsRoutes from './routes/habits.js';
+import categoriesRoutes from './routes/categories.js';
+import goalsRoutes from './routes/goals.js';
+import moodsRoutes from './routes/moods.js';
+import analyticsRoutes from './routes/analytics.js';
+import testRoutes from './routes/test.js';
 
 dotenv.config();
 
@@ -26,6 +32,12 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', indexRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/habits', habitsRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/goals', goalsRoutes);
+app.use('/api/moods', moodsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/test', testRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
