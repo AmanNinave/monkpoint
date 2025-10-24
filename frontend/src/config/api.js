@@ -21,5 +21,12 @@ export const API_ENDPOINTS = {
     MOTIVATION: `${API_BASE_URL}/ai/motivation`,
     HABIT_RECOMMENDATIONS: `${API_BASE_URL}/ai/recommendations/habits`,
     COACHING: `${API_BASE_URL}/ai/coaching`
+  },
+  QUOTES: {
+    RANDOM: `${API_BASE_URL}/quotes/random`,
+    MULTIPLE: `${API_BASE_URL}/quotes/multiple`,
+    BY_AUTHOR: `${API_BASE_URL}/quotes/author`,
+    CACHE_STATS: `${API_BASE_URL}/quotes/cache/stats`,
+    CLEAR_CACHE: `${API_BASE_URL}/quotes/cache`
   }
 };
