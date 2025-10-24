@@ -19,6 +19,7 @@ const Moods = () => {
   const [error, setError] = useState('')
   const [showLogForm, setShowLogForm] = useState(false)
   const [editingMood, setEditingMood] = useState(null)
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     fetchMoods()
@@ -26,7 +27,14 @@ const Moods = () => {
   }, [])
 
   const fetchMoods = async () => {
+    // Prevent duplicate calls while already fetching
+    if (isFetching) {
+      console.log('🔄 Moods data already being fetched, skipping duplicate call')
+      return
+    }
+    
     try {
+      setIsFetching(true)
       setLoading(true)
       const data = await apiService.request('/moods')
       setMoods(data.moods)
@@ -35,6 +43,7 @@ const Moods = () => {
       console.error('Moods error:', err)
     } finally {
       setLoading(false)
+      setIsFetching(false)
     }
   }
 

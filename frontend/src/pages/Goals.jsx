@@ -18,13 +18,21 @@ const Goals = () => {
   const [error, setError] = useState('')
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingGoal, setEditingGoal] = useState(null)
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     fetchGoals()
   }, [])
 
   const fetchGoals = async () => {
+    // Prevent duplicate calls while already fetching
+    if (isFetching) {
+      console.log('🔄 Goals data already being fetched, skipping duplicate call')
+      return
+    }
+    
     try {
+      setIsFetching(true)
       setLoading(true)
       const data = await apiService.request('/goals')
       setGoals(data.goals)
@@ -33,6 +41,7 @@ const Goals = () => {
       console.error('Goals error:', err)
     } finally {
       setLoading(false)
+      setIsFetching(false)
     }
   }
 

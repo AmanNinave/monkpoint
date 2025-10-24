@@ -4,11 +4,21 @@ import { API_ENDPOINTS } from '../config/api'
 class ApiService {
   constructor() {
     this.baseURL = API_ENDPOINTS.AUTH.REGISTER.split('/auth')[0] // Extract base URL
+    this.pendingRequests = new Map() // Track pending requests to prevent duplicates
   }
 
-  // Generic fetch method with error handling
+  // Generic fetch method with error handling and request deduplication
   async request(endpoint, options = {}) {
     const url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`
+    
+    // Create a unique key for this request to prevent duplicates
+    const requestKey = `${options.method || 'GET'}:${url}:${JSON.stringify(options.body || '')}`
+    
+    // If the same request is already pending, return the existing promise
+    if (this.pendingRequests.has(requestKey)) {
+      console.log('🔄 Deduplicating request:', requestKey)
+      return this.pendingRequests.get(requestKey)
+    }
     
     const defaultOptions = {
       headers: {
@@ -23,8 +33,25 @@ class ApiService {
       defaultOptions.headers.Authorization = `Bearer ${token}`
     }
 
+    // Create the request promise
+    const requestPromise = this._makeRequest(url, { ...defaultOptions, ...options })
+    
+    // Store the promise to prevent duplicate requests
+    this.pendingRequests.set(requestKey, requestPromise)
+    
     try {
-      const response = await fetch(url, { ...defaultOptions, ...options })
+      const result = await requestPromise
+      return result
+    } finally {
+      // Clean up the pending request
+      this.pendingRequests.delete(requestKey)
+    }
+  }
+
+  // Internal method to make the actual request
+  async _makeRequest(url, options) {
+    try {
+      const response = await fetch(url, options)
       const data = await response.json()
 
       if (!response.ok) {

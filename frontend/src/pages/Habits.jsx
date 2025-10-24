@@ -18,13 +18,21 @@ const Habits = () => {
   const [error, setError] = useState('')
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingHabit, setEditingHabit] = useState(null)
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     fetchHabits()
   }, [])
 
   const fetchHabits = async () => {
+    // Prevent duplicate calls while already fetching
+    if (isFetching) {
+      console.log('🔄 Habits data already being fetched, skipping duplicate call')
+      return
+    }
+    
     try {
+      setIsFetching(true)
       setLoading(true)
       const data = await apiService.request('/habits')
       setHabits(data.habits)
@@ -33,6 +41,7 @@ const Habits = () => {
       console.error('Habits error:', err)
     } finally {
       setLoading(false)
+      setIsFetching(false)
     }
   }
 

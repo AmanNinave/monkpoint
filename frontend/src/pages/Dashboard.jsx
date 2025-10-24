@@ -14,13 +14,21 @@ const Dashboard = () => {
   const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     fetchDashboardData()
   }, [])
 
   const fetchDashboardData = async () => {
+    // Prevent duplicate calls while already fetching
+    if (isFetching) {
+      console.log('🔄 Dashboard data already being fetched, skipping duplicate call')
+      return
+    }
+    
     try {
+      setIsFetching(true)
       setLoading(true)
       const data = await apiService.request('/analytics/dashboard')
       setAnalytics(data.analytics)
@@ -29,6 +37,7 @@ const Dashboard = () => {
       console.error('Dashboard error:', err)
     } finally {
       setLoading(false)
+      setIsFetching(false)
     }
   }
 

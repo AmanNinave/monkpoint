@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
     message: 'Server is running',
     timestamp: new Date().toISOString()
   });
-});
+}); 
 
 // Routes
 app.use('/api', indexRoutes);
