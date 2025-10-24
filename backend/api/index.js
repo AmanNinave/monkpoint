@@ -26,7 +26,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173', 
     'http://localhost:3000',
-    // Add your production frontend domain here when you deploy it
+    'https://monkpoint.vercel.app',
+    'https://monkpoint-frontend.vercel.app'
   ],
   credentials: true
 }));
