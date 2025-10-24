@@ -7,36 +7,44 @@ const MotivationQuote = () => {
 
   const quotes = [
     {
-      text: "The secret of getting ahead is getting started.",
-      author: "Mark Twain"
+      text: "The mind is everything. What you think you become.",
+      author: "Buddha"
     },
     {
-      text: "Success is the sum of small efforts repeated day in and day out.",
-      author: "Robert Collier"
+      text: "Peace comes from within. Do not seek it without.",
+      author: "Buddha"
     },
     {
-      text: "The way to get started is to quit talking and begin doing.",
-      author: "Walt Disney"
+      text: "The present moment is the only time over which we have dominion.",
+      author: "Thích Nhất Hạnh"
     },
     {
-      text: "Don't watch the clock; do what it does. Keep going.",
-      author: "Sam Levenson"
+      text: "Happiness is not something ready made. It comes from your own actions.",
+      author: "Dalai Lama"
     },
     {
-      text: "The only impossible journey is the one you never begin.",
-      author: "Tony Robbins"
+      text: "The journey of a thousand miles begins with one step.",
+      author: "Lao Tzu"
     },
     {
-      text: "Small steps every day lead to big results.",
-      author: "Unknown"
+      text: "Be the change that you wish to see in the world.",
+      author: "Mahatma Gandhi"
     },
     {
-      text: "Consistency is the mother of mastery.",
-      author: "Robin Sharma"
+      text: "In the middle of difficulty lies opportunity.",
+      author: "Albert Einstein"
     },
     {
-      text: "You don't have to be great to get started, but you have to get started to be great.",
-      author: "Les Brown"
+      text: "The only way to do great work is to love what you do.",
+      author: "Steve Jobs"
+    },
+    {
+      text: "Simplicity is the ultimate sophistication.",
+      author: "Leonardo da Vinci"
+    },
+    {
+      text: "Every morning we are born again. What we do today matters most.",
+      author: "Buddha"
     }
   ]
 
@@ -52,18 +60,23 @@ const MotivationQuote = () => {
   }, [])
 
   return (
-    <div className="bg-gradient-to-r from-green-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
+    <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white p-6 rounded-lg shadow-lg">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <blockquote className="text-lg font-medium mb-2">
-            "{quote}"
-          </blockquote>
-          <cite className="text-sm opacity-90">— {author}</cite>
+          <div className="flex items-start">
+            <span className="text-2xl mr-3">🧘</span>
+            <div>
+              <blockquote className="text-lg font-medium mb-2">
+                "{quote}"
+              </blockquote>
+              <cite className="text-sm opacity-90">— {author}</cite>
+            </div>
+          </div>
         </div>
         <button
           onClick={getRandomQuote}
           className="ml-4 p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-colors"
-          title="Get new quote"
+          title="Get new wisdom"
         >
           <RefreshCw className="w-5 h-5" />
         </button>

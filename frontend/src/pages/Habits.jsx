@@ -103,15 +103,15 @@ const Habits = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Habits</h1>
-          <p className="text-gray-600 mt-2">Track your daily habits and build consistency</p>
+          <h1 className="text-3xl font-bold text-gray-900">Sacred Practices</h1>
+          <p className="text-gray-600 mt-2">Cultivate mindful habits for inner peace and growth</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center"
+          className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg flex items-center"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Add Habit
+          New Practice
         </button>
       </div>
 
@@ -138,13 +138,13 @@ const Habits = () => {
       ) : (
         <div className="text-center py-12">
           <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No habits yet</h3>
-          <p className="text-gray-500 mb-4">Start building better habits today</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No practices yet</h3>
+          <p className="text-gray-500 mb-4">Begin your journey of mindful living</p>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg"
           >
-            Create Your First Habit
+            Start Your First Practice
           </button>
         </div>
       )}

@@ -18,10 +18,10 @@ const Sidebar = ({ user, onLogout }) => {
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   const navigationItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: Home },
-    { name: 'Habits', path: '/habits', icon: Target },
-    { name: 'Goals', path: '/goals', icon: TrendingUp },
-    { name: 'Moods', path: '/moods', icon: Heart },
+    { name: 'Journey', path: '/dashboard', icon: Home },
+    { name: 'Practices', path: '/habits', icon: Target },
+    { name: 'Intentions', path: '/goals', icon: TrendingUp },
+    { name: 'Reflection', path: '/moods', icon: Heart },
   ]
 
   const handleNavigation = (path) => {
@@ -39,8 +39,15 @@ const Sidebar = ({ user, onLogout }) => {
     <div className="flex flex-col h-screen bg-gray-900 text-white w-64">
       {/* Logo/Brand */}
       <div className="p-6 border-b border-gray-700">
-        <h1 className="text-xl font-bold text-green-400">HabitTracker</h1>
-        <p className="text-sm text-gray-400">Build better habits</p>
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center mr-3">
+            <span className="text-white text-lg">🧘</span>
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-amber-400">MonkPoint</h1>
+            <p className="text-sm text-gray-400">Find your inner peace</p>
+          </div>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -53,7 +60,7 @@ const Sidebar = ({ user, onLogout }) => {
               onClick={() => handleNavigation(item.path)}
               className={`w-full flex items-center px-4 py-3 rounded-lg text-left transition-colors ${
                 isActive(item.path)
-                  ? 'bg-green-600 text-white'
+                  ? 'bg-amber-600 text-white'
                   : 'text-gray-300 hover:bg-gray-800 hover:text-white'
               }`}
             >
@@ -71,7 +78,7 @@ const Sidebar = ({ user, onLogout }) => {
           onClick={() => handleNavigation('/settings')}
           className={`w-full flex items-center px-4 py-3 rounded-lg text-left transition-colors mb-2 ${
             isActive('/settings')
-              ? 'bg-green-600 text-white'
+              ? 'bg-amber-600 text-white'
               : 'text-gray-300 hover:bg-gray-800 hover:text-white'
           }`}
         >
@@ -86,7 +93,7 @@ const Sidebar = ({ user, onLogout }) => {
             className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-left transition-colors text-gray-300 hover:bg-gray-800 hover:text-white"
           >
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+              <div className="w-8 h-8 bg-amber-600 rounded-full flex items-center justify-center mr-3">
                 <User className="w-4 h-4" />
               </div>
               <div>

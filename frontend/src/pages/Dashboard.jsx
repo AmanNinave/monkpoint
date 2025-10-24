@@ -60,8 +60,8 @@ const Dashboard = () => {
     <div className="space-y-6">
       {/* Welcome Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Track your progress and stay motivated</p>
+        <h1 className="text-3xl font-bold text-gray-900">Your Journey</h1>
+        <p className="text-gray-600 mt-2">Find peace through mindful habits and inner growth</p>
       </div>
 
       {/* Stats Grid */}
@@ -69,11 +69,11 @@ const Dashboard = () => {
         {/* Overall Completion Rate */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
+            <div className="p-2 bg-amber-100 rounded-lg">
+              <CheckCircle className="w-6 h-6 text-amber-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completion Rate</p>
+              <p className="text-sm font-medium text-gray-600">Mindful Progress</p>
               <p className="text-2xl font-bold text-gray-900">
                 {analytics.overallCompletionRate}%
               </p>
@@ -84,11 +84,11 @@ const Dashboard = () => {
         {/* Total Habits */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Target className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <Target className="w-6 h-6 text-orange-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Habits</p>
+              <p className="text-sm font-medium text-gray-600">Sacred Practices</p>
               <p className="text-2xl font-bold text-gray-900">
                 {analytics.totalHabits}
               </p>
@@ -99,11 +99,11 @@ const Dashboard = () => {
         {/* Total Completions */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Activity className="w-6 h-6 text-purple-600" />
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <Activity className="w-6 h-6 text-emerald-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Completions</p>
+              <p className="text-sm font-medium text-gray-600">Mindful Moments</p>
               <p className="text-2xl font-bold text-gray-900">
                 {analytics.totalCompletions}
               </p>
@@ -114,11 +114,11 @@ const Dashboard = () => {
         {/* Average Mood */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <div className="flex items-center">
-            <div className="p-2 bg-pink-100 rounded-lg">
-              <Heart className="w-6 h-6 text-pink-600" />
+            <div className="p-2 bg-rose-100 rounded-lg">
+              <Heart className="w-6 h-6 text-rose-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Avg Mood</p>
+              <p className="text-sm font-medium text-gray-600">Inner Peace</p>
               <p className="text-2xl font-bold text-gray-900">
                 {analytics.averageMood}/10
               </p>
