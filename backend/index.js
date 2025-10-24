@@ -13,6 +13,7 @@ import goalsRoutes from './routes/goals.js';
 import moodsRoutes from './routes/moods.js';
 import analyticsRoutes from './routes/analytics.js';
 import testRoutes from './routes/test.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/goals', goalsRoutes);
 app.use('/api/moods', moodsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/test', testRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

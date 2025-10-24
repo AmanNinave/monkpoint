@@ -14,6 +14,7 @@ import moodsRoutes from '../routes/moods.js';
 import analyticsRoutes from '../routes/analytics.js';
 import testRoutes from '../routes/test.js';
 import migrateRoutes from '../routes/migrate.js';
+import aiRoutes from '../routes/ai.js';
 
 // Load environment variables
 dotenv.config();
@@ -45,6 +46,7 @@ app.use('/api/moods', moodsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/migrate', migrateRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
