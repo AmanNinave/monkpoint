@@ -2,6 +2,14 @@ import express from 'express';
 const router = express.Router();
 
 // Health check route
+router.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 router.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
