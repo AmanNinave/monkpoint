@@ -66,7 +66,7 @@ Guidelines:
       description: 'Get user\'s mood tracking data',
       parameters: z.object({
         userId: z.string().describe('The user\'s ID'),
-        days: z.number().optional().describe('Number of days to look back (default: 7)')
+        days: z.number().nullable().describe('Number of days to look back (default: 7)')
       }),
       execute: async ({ userId, days = 7 }) => {
         return await this.getUserMoods(userId, days);
