@@ -39,8 +39,8 @@ const LoginForm = () => {
       localStorage.setItem('token', data.token)
       localStorage.setItem('user', JSON.stringify(data.user))
       
-      // Redirect to dashboard or home page
-      navigate('/dashboard')
+      // Reload the page to update the user state in App component
+      window.location.href = '/dashboard'
     } catch (err) {
       setError(err.message || 'Login failed')
     } finally {
