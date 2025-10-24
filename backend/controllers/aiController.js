@@ -40,7 +40,7 @@ const createThread = async (req, res) => {
 const sendMessage = async (req, res) => {
   try {
     const { threadId, message } = req.body;
-    const userId = req.user.id;
+    const userId = req.userId;
 
     if (!message) {
       return res.status(400).json({
@@ -70,7 +70,7 @@ const sendMessage = async (req, res) => {
 // Get AI insights and recommendations
 const getInsights = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const insights = await aiService.getInsights(userId);
     
     res.json({
@@ -90,7 +90,7 @@ const getInsights = async (req, res) => {
 // Get habit suggestions from AI
 const getHabitSuggestions = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { preferences, goals, currentHabits } = req.body;
 
     const prompt = `Based on the user's preferences, goals, and current habits, suggest 3-5 new habits that would be beneficial for their mindful journey.
@@ -128,7 +128,7 @@ Provide specific, actionable habit suggestions with brief explanations of their 
 // Get goal suggestions from AI
 const getGoalSuggestions = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { timeframe, focus, currentGoals } = req.body;
 
     const prompt = `Based on the user's preferences and current goals, suggest 2-3 meaningful goals for their spiritual and personal development journey.
@@ -166,7 +166,7 @@ Provide specific, measurable goals with clear targets and timelines.`;
 // Analyze mood patterns and provide insights
 const analyzeMoodPatterns = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { days = 30 } = req.query;
 
     const prompt = `Analyze the user's mood patterns over the last ${days} days and provide insights and recommendations for improving their emotional well-being.
@@ -200,7 +200,7 @@ Provide compassionate, supportive analysis with actionable recommendations.`;
 // Get motivational message
 const getMotivation = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { context, streak, recentProgress } = req.body;
 
     const prompt = `Provide a personalized motivational message for this user based on their current context and progress.
@@ -238,7 +238,7 @@ Keep it concise but meaningful (2-3 sentences).`;
 // Get AI-powered habit recommendations
 const getHabitRecommendations = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { category, difficulty, timeAvailable } = req.body;
 
     const prompt = `Suggest specific habits for this user based on their preferences and constraints.
@@ -276,7 +276,7 @@ Include brief explanations of benefits and implementation tips.`;
 // Get AI coaching session
 const getCoachingSession = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     const { topic, duration = 'short' } = req.body;
 
     const prompt = `Provide a personalized coaching session for this user on the topic: "${topic}".
