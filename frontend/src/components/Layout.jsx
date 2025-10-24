@@ -1,6 +1,7 @@
 import React from 'react'
 import Sidebar from './Sidebar'
 import MotivationQuote from './MotivationQuote'
+import Chatbot from './Chatbot'
 
 const Layout = ({ children, user, onLogout }) => {
   return (
@@ -20,6 +21,9 @@ const Layout = ({ children, user, onLogout }) => {
           {children}
         </main>
       </div>
+      
+      {/* AI Chatbot - Only for logged in users */}
+      <Chatbot />
     </div>
   )
 }

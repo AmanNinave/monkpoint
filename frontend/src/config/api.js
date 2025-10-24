@@ -10,5 +10,16 @@ export const API_ENDPOINTS = {
     LOGOUT: `${API_BASE_URL}/auth/logout`,
   },
   HEALTH: `${API_BASE_URL}/health`,
-  // Add other API endpoints here as the app grows
+  AI: {
+    INITIALIZE: `${API_BASE_URL}/ai/initialize`,
+    THREAD: `${API_BASE_URL}/ai/thread`,
+    MESSAGE: `${API_BASE_URL}/ai/message`,
+    INSIGHTS: `${API_BASE_URL}/ai/insights`,
+    HABIT_SUGGESTIONS: `${API_BASE_URL}/ai/suggestions/habits`,
+    GOAL_SUGGESTIONS: `${API_BASE_URL}/ai/suggestions/goals`,
+    MOOD_ANALYSIS: `${API_BASE_URL}/ai/analysis/mood`,
+    MOTIVATION: `${API_BASE_URL}/ai/motivation`,
+    HABIT_RECOMMENDATIONS: `${API_BASE_URL}/ai/recommendations/habits`,
+    COACHING: `${API_BASE_URL}/ai/coaching`
+  }
 };

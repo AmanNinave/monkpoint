@@ -9,7 +9,8 @@ import {
   LogOut, 
   User,
   ChevronDown,
-  X
+  X,
+  Brain
 } from 'lucide-react'
 
 const Sidebar = ({ user, onLogout }) => {
@@ -22,6 +23,7 @@ const Sidebar = ({ user, onLogout }) => {
     { name: 'Practices', path: '/habits', icon: Target },
     { name: 'Intentions', path: '/goals', icon: TrendingUp },
     { name: 'Reflection', path: '/moods', icon: Heart },
+    { name: 'AI Insights', path: '/ai-insights', icon: Brain },
   ]
 
   const handleNavigation = (path) => {

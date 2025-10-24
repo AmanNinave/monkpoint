@@ -9,6 +9,7 @@ import Habits from './pages/Habits'
 import Goals from './pages/Goals'
 import Moods from './pages/Moods'
 import Settings from './pages/Settings'
+import AIInsights from './pages/AIInsights'
 
 // Auth Layout Component
 const AuthLayout = ({ children }) => {
@@ -101,6 +102,19 @@ function App() {
             user ? (
               <Layout user={user} onLogout={handleLogout}>
                 <Settings />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        
+        <Route 
+          path="/ai-insights" 
+          element={
+            user ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <AIInsights />
               </Layout>
             ) : (
               <Navigate to="/login" replace />
