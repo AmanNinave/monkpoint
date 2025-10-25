@@ -135,15 +135,49 @@ export const getCalendarData = async (req, res) => {
       // Add days from current month
       for (let i = 1; i <= endDate.getDate(); i++) {
         const day = new Date(startDate.getFullYear(), startDate.getMonth(), i);
-        const dayActivities = habitEntries.filter(entry => 
+        const dayHabitEntries = habitEntries.filter(entry => 
           entry.date.toDateString() === day.toDateString()
-        ).length;
+        );
+        const dayMoodEntries = moodEntries.filter(entry => 
+          entry.date.toDateString() === day.toDateString()
+        );
+        const dayGoalEntries = goalEntries.filter(entry => 
+          entry.createdAt.toDateString() === day.toDateString()
+        );
+        
+        const allActivities = [
+          ...dayHabitEntries.map(entry => ({
+            type: 'habit',
+            id: entry.id,
+            name: entry.habit.name,
+            value: entry.value,
+            unit: entry.habit.unit,
+            time: entry.date
+          })),
+          ...dayMoodEntries.map(entry => ({
+            type: 'mood',
+            id: entry.id,
+            name: `Mood: ${entry.mood}`,
+            value: entry.rating,
+            unit: '/10',
+            time: entry.date
+          })),
+          ...dayGoalEntries.map(entry => ({
+            type: 'goal',
+            id: entry.id,
+            name: entry.title,
+            value: entry.progress,
+            unit: '%',
+            time: entry.createdAt
+          }))
+        ];
         
         days.push({
           day: i,
           date: day,
           isCurrentMonth: true,
-          activities: dayActivities
+          activities: allActivities.length,
+          activityDetails: allActivities
         });
       }
       
@@ -170,17 +204,51 @@ export const getCalendarData = async (req, res) => {
         const day = new Date(startDate);
         day.setDate(startDate.getDate() + i);
         
-        const dayActivities = habitEntries.filter(entry => 
+        const dayHabitEntries = habitEntries.filter(entry => 
           entry.date.toDateString() === day.toDateString()
-        ).length;
+        );
+        const dayMoodEntries = moodEntries.filter(entry => 
+          entry.date.toDateString() === day.toDateString()
+        );
+        const dayGoalEntries = goalEntries.filter(entry => 
+          entry.createdAt.toDateString() === day.toDateString()
+        );
         
-        const completed = dayActivities > 0;
+        const allActivities = [
+          ...dayHabitEntries.map(entry => ({
+            type: 'habit',
+            id: entry.id,
+            name: entry.habit.name,
+            value: entry.value,
+            unit: entry.habit.unit,
+            time: entry.date
+          })),
+          ...dayMoodEntries.map(entry => ({
+            type: 'mood',
+            id: entry.id,
+            name: `Mood: ${entry.mood}`,
+            value: entry.rating,
+            unit: '/10',
+            time: entry.date
+          })),
+          ...dayGoalEntries.map(entry => ({
+            type: 'goal',
+            id: entry.id,
+            name: entry.title,
+            value: entry.progress,
+            unit: '%',
+            time: entry.createdAt
+          }))
+        ];
+        
+        const completed = allActivities.length > 0;
         
         weekDays.push({
           day: day.getDate(),
           dayName: day.toLocaleDateString('en-US', { weekday: 'short' }),
           date: day,
-          activities: dayActivities,
+          activities: allActivities.length,
+          activityDetails: allActivities,
           completed
         });
       }
@@ -189,21 +257,49 @@ export const getCalendarData = async (req, res) => {
       responseData.streak = currentStreak;
     } else if (view === 'day') {
       // Generate day view data
-      const dayActivities = habitEntries.filter(entry => 
+      const dayHabitEntries = habitEntries.filter(entry => 
         entry.date.toDateString() === targetDate.toDateString()
       );
+      const dayMoodEntries = moodEntries.filter(entry => 
+        entry.date.toDateString() === targetDate.toDateString()
+      );
+      const dayGoalEntries = goalEntries.filter(entry => 
+        entry.createdAt.toDateString() === targetDate.toDateString()
+      );
+      
+      const allActivities = [
+        ...dayHabitEntries.map(entry => ({
+          type: 'habit',
+          id: entry.id,
+          name: entry.habit.name,
+          value: entry.value,
+          unit: entry.habit.unit,
+          time: entry.date
+        })),
+        ...dayMoodEntries.map(entry => ({
+          type: 'mood',
+          id: entry.id,
+          name: `Mood: ${entry.mood}`,
+          value: entry.rating,
+          unit: '/10',
+          time: entry.date
+        })),
+        ...dayGoalEntries.map(entry => ({
+          type: 'goal',
+          id: entry.id,
+          name: entry.title,
+          value: entry.progress,
+          unit: '%',
+          time: entry.createdAt
+        }))
+      ];
       
       const activitiesScheduled = habits.length;
       
       responseData.dayData = {
         activitiesScheduled,
-        activities: dayActivities.map(entry => ({
-          id: entry.id,
-          habitName: entry.habit.name,
-          time: entry.createdAt,
-          value: entry.value,
-          unit: entry.habit.unit
-        }))
+        activities: allActivities,
+        totalActivities: allActivities.length
       };
     }
 

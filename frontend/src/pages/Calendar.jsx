@@ -9,6 +9,8 @@ const Calendar = () => {
   const [calendarData, setCalendarData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [showActivities, setShowActivities] = useState(false);
 
   useEffect(() => {
     console.log('📅 Calendar useEffect triggered:', { currentDate, view });
@@ -90,6 +92,13 @@ const Calendar = () => {
 
   const goToToday = () => {
     setCurrentDate(new Date());
+  };
+
+  const handleDayClick = (day) => {
+    if (day.activities > 0 && day.activityDetails) {
+      setSelectedDay(day);
+      setShowActivities(true);
+    }
   };
 
   const formatDate = (date) => {
@@ -188,11 +197,14 @@ const Calendar = () => {
             {days.map((day, index) => (
               <div
                 key={index}
+                onClick={() => handleDayClick(day)}
                 className={`
                   aspect-square rounded-md p-1 relative cursor-pointer transition-colors
                   ${day.isCurrentMonth ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-900 text-gray-500'}
                   ${isToday(day.date) ? 'bg-amber-600 text-white' : ''}
+                  ${day.activities > 0 ? 'hover:bg-amber-500 hover:text-white' : ''}
                 `}
+                title={day.activities > 0 ? `${day.activities} activities` : ''}
               >
                 <div className="text-xs font-medium">{day.day}</div>
                 {day.activities > 0 && (
@@ -240,7 +252,12 @@ const Calendar = () => {
         {/* Week Days */}
         <div className="grid grid-cols-7 gap-3">
           {weekDays.map((day, index) => (
-            <div key={index} className="bg-gray-800 rounded-lg p-3 text-center">
+            <div 
+              key={index} 
+              className="bg-gray-800 rounded-lg p-3 text-center cursor-pointer hover:bg-gray-700 transition-colors"
+              onClick={() => handleDayClick(day)}
+              title={day.activities > 0 ? `Click to view ${day.activities} activities` : ''}
+            >
               <div className="text-gray-400 text-xs mb-1">{day.dayName}</div>
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-2 ${
                 isToday(day.date) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-white'
@@ -412,6 +429,57 @@ const Calendar = () => {
       {view === 'month' && renderMonthView()}
       {view === 'week' && renderWeekView()}
       {view === 'day' && renderDayView()}
+
+      {/* Activities Modal */}
+      {showActivities && selectedDay && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 max-h-96 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">
+                Activities for {formatDayDate(selectedDay.date)}
+              </h3>
+              <button
+                onClick={() => setShowActivities(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              {selectedDay.activityDetails.map((activity, index) => (
+                <div key={index} className="bg-gray-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        activity.type === 'habit' ? 'bg-green-500' :
+                        activity.type === 'mood' ? 'bg-blue-500' :
+                        'bg-purple-500'
+                      }`}></div>
+                      <span className="text-white font-medium">{activity.name}</span>
+                    </div>
+                    <div className="text-gray-300 text-sm">
+                      {activity.value}{activity.unit}
+                    </div>
+                  </div>
+                  <div className="text-gray-400 text-xs mt-1">
+                    {new Date(activity.time).toLocaleTimeString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setShowActivities(false)}
+                className="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
