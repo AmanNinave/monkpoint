@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Flame, Target, TrendingUp } from 'lucide-react';
 import { apiService } from '../services/api';
+import { getUserTimezone, formatDateForDisplay } from '../utils/timezone';
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -10,6 +11,7 @@ const Calendar = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    console.log('📅 Calendar useEffect triggered:', { currentDate, view });
     fetchCalendarData();
   }, [currentDate, view]);
 
@@ -17,6 +19,22 @@ const Calendar = () => {
     try {
       setLoading(true);
       setError('');
+      
+      // Get user timezone with fallback
+      let userTimezone = 'UTC';
+      try {
+        userTimezone = getUserTimezone();
+      } catch (error) {
+        console.warn('Could not get user timezone, using UTC:', error);
+      }
+      
+      console.log('📅 Fetching calendar data with timezone:', userTimezone);
+      console.log('📅 Calendar request details:', {
+        date: currentDate.toISOString(),
+        view: view,
+        timezone: userTimezone
+      });
+      
       const data = await apiService.request('/calendar', {
         method: 'POST',
         body: JSON.stringify({
@@ -27,15 +45,27 @@ const Calendar = () => {
       
       if (data.success) {
         console.log('📅 Calendar data received:', data);
-        setCalendarData(data);
+        // Extract the actual calendar data from the response
+        const calendarData = {
+          success: data.success,
+          stats: data.stats,
+          days: data.days,
+          weekDays: data.weekDays || [],
+          dayData: data.dayData || { activities: [], activitiesScheduled: 0 }
+        };
+        setCalendarData(calendarData);
+        setError(''); // Clear any previous errors
       } else {
+        console.error('📅 Calendar API returned error:', data);
         throw new Error(data.error || 'Failed to fetch calendar data');
       }
     } catch (err) {
+      console.error('📅 Calendar fetch error:', err);
       setError('Failed to load calendar data');
-      console.error('Calendar error:', err);
+      
       // Set fallback data to prevent complete breakdown
       setCalendarData({
+        success: true,
         stats: { activeDays: 0, totalActivities: 0, consistency: 0 },
         days: [],
         weekDays: [],
@@ -63,27 +93,53 @@ const Calendar = () => {
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      year: 'numeric' 
-    });
+    try {
+      const userTimezone = getUserTimezone();
+      return formatDateForDisplay(date, userTimezone, 'date').replace(/\d{1,2},/, '').trim();
+    } catch (error) {
+      console.warn('Error formatting date, using fallback:', error);
+      return date.toLocaleDateString('en-US', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    }
   };
 
   const formatWeekRange = (date) => {
-    const startOfWeek = new Date(date);
-    startOfWeek.setDate(date.getDate() - date.getDay());
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    
-    return `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    try {
+      const userTimezone = getUserTimezone();
+      const startOfWeek = new Date(date);
+      startOfWeek.setDate(date.getDate() - date.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      
+      const startFormatted = formatDateForDisplay(startOfWeek, userTimezone, 'date');
+      const endFormatted = formatDateForDisplay(endOfWeek, userTimezone, 'date');
+      
+      return `${startFormatted} - ${endFormatted}`;
+    } catch (error) {
+      console.warn('Error formatting week range, using fallback:', error);
+      const startOfWeek = new Date(date);
+      startOfWeek.setDate(date.getDate() - date.getDay());
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      
+      return `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    }
   };
 
   const formatDayDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    try {
+      const userTimezone = getUserTimezone();
+      return formatDateForDisplay(date, userTimezone, 'date');
+    } catch (error) {
+      console.warn('Error formatting day date, using fallback:', error);
+      return date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
   };
 
   const renderMonthView = () => {
@@ -93,6 +149,7 @@ const Calendar = () => {
     }
 
     const { days = [], stats = { activeDays: 0, totalActivities: 0, consistency: 0 } } = calendarData;
+    console.log('📅 Calendar data structure:', { calendarData, days: days.length, stats });
     console.log('📅 Rendering month view with:', { days: days.length, stats });
     const today = new Date();
     const isToday = (date) => {

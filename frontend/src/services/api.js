@@ -29,8 +29,15 @@ class ApiService {
 
     // Add authorization header if token exists
     const token = localStorage.getItem('token')
+    console.log('🔑 API Service - Token check:', { 
+      hasToken: !!token, 
+      tokenLength: token ? token.length : 0,
+      tokenPreview: token ? token.substring(0, 20) + '...' : 'No token'
+    })
     if (token) {
       defaultOptions.headers.Authorization = `Bearer ${token}`
+    } else {
+      console.warn('⚠️ No authentication token found in localStorage')
     }
 
     // Create the request promise

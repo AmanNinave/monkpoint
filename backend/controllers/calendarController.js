@@ -1,4 +1,10 @@
 import prisma from '../db.js';
+import { 
+  getUserTimezone, 
+  createDateRangeInTimezone, 
+  formatDateForDisplay,
+  convertToUserTimezone 
+} from '../utils/timezone.js';
 
 // Get calendar data for different views
 export const getCalendarData = async (req, res) => {
@@ -14,24 +20,34 @@ export const getCalendarData = async (req, res) => {
     }
 
     const userId = req.userId;
+    const userTimezone = getUserTimezone(req);
     
     // Get user's habits and entries for the requested period
     let startDate, endDate;
     
     if (view === 'month') {
-      startDate = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
-      endDate = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
+      const monthStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+      const monthEnd = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
+      const dateRange = createDateRangeInTimezone(monthStart, monthEnd, userTimezone);
+      startDate = dateRange.start;
+      endDate = dateRange.end;
     } else if (view === 'week') {
       const dayOfWeek = targetDate.getDay();
-      startDate = new Date(targetDate);
-      startDate.setDate(targetDate.getDate() - dayOfWeek);
-      endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + 6);
+      const weekStart = new Date(targetDate);
+      weekStart.setDate(targetDate.getDate() - dayOfWeek);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      const dateRange = createDateRangeInTimezone(weekStart, weekEnd, userTimezone);
+      startDate = dateRange.start;
+      endDate = dateRange.end;
     } else if (view === 'day') {
-      startDate = new Date(targetDate);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(targetDate);
-      endDate.setHours(23, 59, 59, 999);
+      const dayStart = new Date(targetDate);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(targetDate);
+      dayEnd.setHours(23, 59, 59, 999);
+      const dateRange = createDateRangeInTimezone(dayStart, dayEnd, userTimezone);
+      startDate = dateRange.start;
+      endDate = dateRange.end;
     }
 
     console.log('📅 Date range:', { startDate, endDate, view });

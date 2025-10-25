@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import prisma from '../db.js';
+import { isValidTimezone, getUserTimezone } from '../utils/timezone.js';
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -14,7 +15,7 @@ const generateToken = (userId) => {
 // Register user
 const register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, timezone } = req.body;
 
     // Validation
     if (!email || !password) {
@@ -23,6 +24,11 @@ const register = async (req, res) => {
 
     if (password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    // Validate timezone if provided
+    if (timezone && !isValidTimezone(timezone)) {
+      return res.status(400).json({ error: 'Invalid timezone provided' });
     }
 
     // Check if user already exists
@@ -42,7 +48,8 @@ const register = async (req, res) => {
       data: {
         email,
         password: hashedPassword,
-        name: name || null
+        name: name || null,
+        timezone: timezone || 'UTC'
       }
     });
 
@@ -125,6 +132,7 @@ const getProfile = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        timezone: user.timezone,
         createdAt: user.createdAt
       }
     });
@@ -137,11 +145,19 @@ const getProfile = async (req, res) => {
 // Update user profile
 const updateProfile = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, timezone } = req.body;
+    
+    // Validate timezone if provided
+    if (timezone && !isValidTimezone(timezone)) {
+      return res.status(400).json({ error: 'Invalid timezone provided' });
+    }
     
     const user = await prisma.user.update({
       where: { id: req.userId },
-      data: { name }
+      data: { 
+        ...(name !== undefined && { name }),
+        ...(timezone !== undefined && { timezone })
+      }
     });
 
     res.json({
@@ -150,6 +166,7 @@ const updateProfile = async (req, res) => {
         id: user.id,
         email: user.email,
         name: user.name,
+        timezone: user.timezone,
         updatedAt: user.updatedAt
       }
     });

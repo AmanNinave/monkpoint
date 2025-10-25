@@ -11,6 +11,8 @@ import {
   EyeOff
 } from 'lucide-react'
 import { apiService } from '../services/api'
+import TimezoneSelector from '../components/TimezoneSelector'
+import { getUserTimezone, setUserTimezone } from '../utils/timezone'
 
 const Settings = () => {
   const [user, setUser] = useState(null)
@@ -23,6 +25,7 @@ const Settings = () => {
     shareProgress: false,
     aiSuggestions: true
   })
+  const [userTimezone, setUserTimezone] = useState('UTC')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -49,6 +52,12 @@ const Settings = () => {
       const userData = await apiService.request('/auth/profile')
       setUser(userData.user)
       
+      // Set timezone from user data
+      if (userData.user.timezone) {
+        setUserTimezone(userData.user.timezone)
+        setUserTimezone(userData.user.timezone) // Update localStorage
+      }
+      
       // Set default settings if not available
       if (userData.user.settings) {
         setSettings(userData.user.settings)
@@ -59,6 +68,13 @@ const Settings = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleTimezoneChange = (newTimezone) => {
+    setUserTimezone(newTimezone)
+    setUserTimezone(newTimezone) // Update localStorage
+    setSuccess('Timezone updated successfully')
+    setTimeout(() => setSuccess(''), 3000)
   }
 
   const handleSaveSettings = async () => {
@@ -278,6 +294,20 @@ const Settings = () => {
                   <option value="fr">French</option>
                   <option value="de">German</option>
                 </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Timezone
+                </label>
+                <TimezoneSelector
+                  currentTimezone={userTimezone}
+                  onTimezoneChange={handleTimezoneChange}
+                  className="w-full"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  All times will be displayed in your selected timezone
+                </p>
               </div>
             </div>
           </div>
