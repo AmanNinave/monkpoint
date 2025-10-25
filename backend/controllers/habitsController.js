@@ -26,12 +26,42 @@ export const getHabits = async (req, res) => {
 // Create a new habit
 export const createHabit = async (req, res) => {
   try {
+    console.log('🔄 Creating habit for user:', req.userId);
+    console.log('📝 Request body:', req.body);
+    
     const { name, description, categoryId, frequency, targetValue, unit, icon, color } = req.body;
 
     if (!name) {
+      console.log('❌ Validation error: Habit name is required');
       return res.status(400).json({ error: 'Habit name is required' });
     }
 
+    // Verify user exists before creating habit
+    console.log('🔍 Verifying user exists...');
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId }
+    });
+
+    if (!user) {
+      console.log('❌ User not found:', req.userId);
+      return res.status(404).json({ error: 'User not found' });
+    }
+    console.log('✅ User verified:', user.email);
+
+    console.log('✅ Creating habit in database...');
+    console.log('📝 Habit data:', {
+      userId: req.userId,
+      name,
+      description,
+      categoryId,
+      frequency: frequency || 'DAILY',
+      targetValue,
+      unit,
+      icon,
+      color,
+      isActive: true
+    });
+    
     const habit = await prisma.habit.create({
       data: {
         userId: req.userId,
@@ -50,21 +80,39 @@ export const createHabit = async (req, res) => {
       }
     });
 
-    // Create initial streak record
-    await prisma.streak.create({
-      data: {
-        userId: req.userId,
-        habitId: habit.id,
-        current: 0,
-        longest: 0,
-        isActive: true
-      }
-    });
+    console.log('✅ Habit created successfully:', habit.id);
 
+    // Create initial streak record
+    console.log('🔄 Creating streak record...');
+    try {
+      await prisma.streak.create({
+        data: {
+          userId: req.userId,
+          habitId: habit.id,
+          current: 0,
+          longest: 0,
+          isActive: true
+        }
+      });
+      console.log('✅ Streak record created successfully');
+    } catch (streakError) {
+      console.error('⚠️ Streak creation failed, but habit was created:', streakError);
+      // Don't fail the entire request if streak creation fails
+    }
+
+    console.log('✅ Habit creation completed successfully');
     res.status(201).json({ habit });
   } catch (error) {
-    console.error('Create habit error:', error);
-    res.status(500).json({ error: 'Failed to create habit' });
+    console.error('❌ Create habit error:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta
+    });
+    res.status(500).json({ 
+      error: 'Failed to create habit',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

@@ -47,15 +47,20 @@ const Habits = () => {
 
   const handleCreateHabit = async (habitData) => {
     try {
+      console.log('🔄 Creating habit with data:', habitData)
+      
       const data = await apiService.request('/habits', {
         method: 'POST',
         body: JSON.stringify(habitData)
       })
+      
+      console.log('✅ Habit created successfully:', data)
       setHabits([data.habit, ...habits])
       setShowCreateForm(false)
+      setError('') // Clear any previous errors
     } catch (err) {
-      setError('Failed to create habit')
-      console.error('Create habit error:', err)
+      console.error('❌ Create habit error:', err)
+      setError(`Failed to create habit: ${err.message || 'Unknown error'}`)
     }
   }
 
@@ -107,8 +112,43 @@ const Habits = () => {
     )
   }
 
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-4">
+        <div className="flex items-center">
+          <span className="text-red-500 mr-2">⚠️</span>
+          <span>{error}</span>
+        </div>
+        <button 
+          onClick={() => setError('')}
+          className="text-red-400 hover:text-red-600 text-sm mt-1"
+        >
+          Dismiss
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-red-500 mr-2">⚠️</span>
+              <span>{error}</span>
+            </div>
+            <button 
+              onClick={() => setError('')}
+              className="text-red-400 hover:text-red-600 text-sm"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -362,10 +402,19 @@ const HabitForm = ({ habit, onSave, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Validate required fields
+    if (!formData.name.trim()) {
+      alert('Habit name is required')
+      return
+    }
+    
     const data = {
       ...formData,
       targetValue: formData.targetValue ? parseInt(formData.targetValue) : null
     }
+    
+    console.log('📝 Submitting habit form with data:', data)
     onSave(data)
   }
 
