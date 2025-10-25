@@ -15,6 +15,8 @@ import analyticsRoutes from '../routes/analytics.js';
 import testRoutes from '../routes/test.js';
 import migrateRoutes from '../routes/migrate.js';
 import aiRoutes from '../routes/ai.js';
+import quotesRoutes from '../routes/quotes.js';
+import calendarRoutes from '../routes/calendar.js';
 
 // Load environment variables
 dotenv.config();
@@ -36,6 +38,15 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check route
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use('/api', indexRoutes);
 app.use('/api/auth', authRoutes);
@@ -47,6 +58,8 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/migrate', migrateRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/quotes', quotesRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
