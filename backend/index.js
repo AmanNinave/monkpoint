@@ -15,6 +15,7 @@ import analyticsRoutes from './routes/analytics.js';
 import testRoutes from './routes/test.js';
 import aiRoutes from './routes/ai.js';
 import quotesRoutes from './routes/quotes.js';
+import calendarRoutes from './routes/calendar.js';
 
 dotenv.config();
 
@@ -51,6 +52,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/quotes', quotesRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

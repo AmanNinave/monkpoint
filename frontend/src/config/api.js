@@ -28,5 +28,8 @@ export const API_ENDPOINTS = {
     BY_AUTHOR: `${API_BASE_URL}/quotes/author`,
     CACHE_STATS: `${API_BASE_URL}/quotes/cache/stats`,
     CLEAR_CACHE: `${API_BASE_URL}/quotes/cache`
+  },
+  CALENDAR: {
+    DATA: `${API_BASE_URL}/calendar`
   }
 };

@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard'
 import Habits from './pages/Habits'
 import Goals from './pages/Goals'
 import Moods from './pages/Moods'
+import Calendar from './pages/Calendar'
 import Settings from './pages/Settings'
 import AIInsights from './pages/AIInsights'
 
@@ -89,6 +90,19 @@ function App() {
             user ? (
               <Layout user={user} onLogout={handleLogout}>
                 <Moods />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        
+        <Route 
+          path="/calendar" 
+          element={
+            user ? (
+              <Layout user={user} onLogout={handleLogout}>
+                <Calendar />
               </Layout>
             ) : (
               <Navigate to="/login" replace />

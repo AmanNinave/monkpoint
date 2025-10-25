@@ -10,7 +10,8 @@ import {
   User,
   ChevronDown,
   X,
-  Brain
+  Brain,
+  Calendar
 } from 'lucide-react'
 
 const Sidebar = ({ user, onLogout }) => {
@@ -23,6 +24,7 @@ const Sidebar = ({ user, onLogout }) => {
     { name: 'Practices', path: '/habits', icon: Target },
     { name: 'Intentions', path: '/goals', icon: TrendingUp },
     { name: 'Reflection', path: '/moods', icon: Heart },
+    { name: 'Calendar', path: '/calendar', icon: Calendar },
     { name: 'AI Insights', path: '/ai-insights', icon: Brain },
   ]
 
