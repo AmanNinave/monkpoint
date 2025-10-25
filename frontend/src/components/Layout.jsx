@@ -12,7 +12,7 @@ const Layout = ({ children, user, onLogout }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with Motivation Quote */}
-        <header className="bg-white shadow-sm p-6">
+        <header className="bg-white shadow-sm">
           <MotivationQuote />
         </header>
         

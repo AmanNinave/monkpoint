@@ -1,81 +1,111 @@
-import React, { useState, useEffect } from 'react'
-import { RefreshCw, Loader2 } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { RefreshCw, ArrowLeft, ArrowRight } from 'lucide-react'
 import { quotesService } from '../services/quotesService'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const MotivationQuote = () => {
   const [quote, setQuote] = useState('')
   const [author, setAuthor] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [index, setIndex] = useState(0)
+  const intervalRef = useRef(null)
 
   const getRandomQuote = async (forceRefresh = false) => {
     try {
-      setLoading(true)
-      setError('')
-      console.log(`🌅 Fetching ${forceRefresh ? 'fresh' : 'cached'} quote from ZenQuotes API`)
-      
       const quoteData = await quotesService.getRandomQuote(forceRefresh)
       setQuote(quoteData.text)
       setAuthor(quoteData.author)
     } catch (err) {
       console.error('Error fetching quote:', err)
       setError('Failed to load quote')
-      // Fallback to static quote
       const fallbackQuote = quotesService.getFallbackQuote()
       setQuote(fallbackQuote.text)
       setAuthor(fallbackQuote.author)
-    } finally {
-      setLoading(false)
     }
   }
 
   useEffect(() => {
-    getRandomQuote(true) // Force fresh quote on page load
+    const init = async () => {
+      await getRandomQuote(true)
+      setLoading(false)
+      intervalRef.current = setInterval(() => {
+        setIndex((prev) => prev + 1)
+        getRandomQuote(true)
+      }, 5000)
+    }
+    init()
+    return () => clearInterval(intervalRef.current)
   }, [])
 
+  const handlePrev = () => {
+    clearInterval(intervalRef.current)
+    setIndex((prev) => prev - 1)
+    getRandomQuote(true)
+  }
+
+  const handleNext = () => {
+    clearInterval(intervalRef.current)
+    setIndex((prev) => prev + 1)
+    getRandomQuote(true)
+  }
+
   return (
-    <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white p-6 rounded-lg shadow-lg">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <div className="flex items-start">
-            <span className="text-2xl mr-3">🧘</span>
-            <div>
-              {loading ? (
-                <div className="flex items-center">
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  <span className="text-lg">Loading wisdom...</span>
-                </div>
-              ) : error ? (
-                <div className="text-yellow-200">
-                  <blockquote className="text-lg font-medium mb-2">
-                    "{quote}"
-                  </blockquote>
-                  <cite className="text-sm opacity-90">— {author} (Offline)</cite>
-                </div>
-              ) : (
-                <>
-                  <blockquote className="text-lg font-medium mb-2">
-                    "{quote}"
-                  </blockquote>
-                  <cite className="text-sm opacity-90">— {author}</cite>
-                </>
-              )}
-            </div>
+    <div className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-500 text-white border-b border-orange-400 shadow-sm px-6 py-2 flex items-center justify-between overflow-hidden">
+      {/* Left Arrow */}
+      <button
+        onClick={handlePrev}
+        className="p-1.5 hover:bg-white/10 transition-colors rounded"
+        title="Previous"
+      >
+        <ArrowLeft className="w-4 h-4" />
+      </button>
+
+      {/* Quote Section */}
+      <div className="flex-1 text-center px-4">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-2">
+            <div className="w-5 h-5 border-2 border-white/50 border-t-transparent rounded-full animate-spin mb-1"></div>
+            <span className="text-xs opacity-80">Loading wisdom...</span>
           </div>
-        </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={index}
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -100, opacity: 0 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+            >
+              <blockquote className="text-sm md:text-base font-medium leading-snug mb-0.5">
+                “{quote}”
+              </blockquote>
+              <cite className="text-xs md:text-sm opacity-90">— {author}</cite>
+              {error && <div className="text-yellow-200 text-xs mt-1">(Offline mode)</div>}
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </div>
+
+      {/* Right Arrow */}
+      <button
+        onClick={handleNext}
+        className="p-1.5 hover:bg-white/10 transition-colors rounded"
+        title="Next"
+      >
+        <ArrowRight className="w-4 h-4" />
+      </button>
+
+      {/* Refresh Button */}
+      {!loading && (
         <button
           onClick={() => getRandomQuote(true)}
-          disabled={loading}
-          className="ml-4 p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Get new wisdom"
+          title="Refresh quote"
+          className="ml-3 p-1.5 hover:bg-white/10 transition-colors rounded"
         >
-          {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <RefreshCw className="w-5 h-5" />
-          )}
+          <RefreshCw className="w-4 h-4" />
         </button>
-      </div>
+      )}
     </div>
   )
 }
