@@ -39,6 +39,7 @@ export const logMood = async (req, res) => {
     }
 
     const moodDate = date ? new Date(date) : new Date();
+    console.log("moodDate: ", moodDate);
     moodDate.setHours(0, 0, 0, 0); // Start of day
 
     // Check if mood entry already exists for this date
@@ -48,6 +49,7 @@ export const logMood = async (req, res) => {
         date: moodDate
       }
     });
+    console.log("existingMood: ", existingMood);
 
     if (existingMood) {
       // Update existing mood
