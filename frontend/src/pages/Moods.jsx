@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Heart, 
-  Calendar, 
-  TrendingUp, 
-  Edit, 
+import {
+  Heart,
+  Calendar,
+  TrendingUp,
+  Edit,
   Trash2,
   Plus,
   Smile,
@@ -15,6 +15,7 @@ import { apiService } from '../services/api'
 const Moods = () => {
   const [moods, setMoods] = useState([])
   const [analytics, setAnalytics] = useState(null)
+  console.log("analytics: ", analytics);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showLogForm, setShowLogForm] = useState(false)
@@ -32,7 +33,7 @@ const Moods = () => {
       console.log('🔄 Moods data already being fetched, skipping duplicate call')
       return
     }
-    
+
     try {
       setIsFetching(true)
       setLoading(true)
@@ -88,7 +89,7 @@ const Moods = () => {
 
   const handleDeleteMood = async (id) => {
     if (!confirm('Are you sure you want to delete this mood entry?')) return
-    
+
     try {
       await apiService.request(`/moods/${id}`, { method: 'DELETE' })
       setMoods(moods.filter(m => m.id !== id))
@@ -191,28 +192,37 @@ const Moods = () => {
       )}
 
       {/* Mood Trend Chart */}
-      {analytics && analytics.moodTrend.length > 0 && (
+      {analytics?.moodTrend?.length > 0 && (
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Mood Trend</h3>
           <div className="flex items-end space-x-2 h-32">
-            {analytics.moodTrend.map((entry, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center">
-                <div 
-                  className="w-full rounded-t"
-                  style={{ 
-                    height: `${(entry.rating / 10) * 100}%`,
-                    backgroundColor: entry.rating >= 8 ? '#10B981' : entry.rating >= 5 ? '#F59E0B' : '#EF4444'
-                  }}
-                ></div>
-                <span className="text-xs text-gray-500 mt-2">
-                  {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </span>
-                <span className="text-xs font-medium text-gray-700">{entry.rating}</span>
-              </div>
-            ))}
+            {analytics.moodTrend.map((entry, index) => {
+              const date = new Date(entry.date);
+              return (
+                <div key={index} className="flex-1 flex flex-col items-center">
+                  <div
+                    className="w-full rounded-t"
+                    style={{
+                      height: `${(entry.rating / 10) * 100}%`,
+                      backgroundColor:
+                        entry.rating >= 8
+                          ? '#10B981' // Green
+                          : entry.rating >= 5
+                            ? '#F59E0B' // Yellow
+                            : '#EF4444', // Red
+                    }}
+                  ></div>
+                  <span className="text-xs text-gray-500 mt-2">
+                    {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                  <span className="text-xs font-medium text-gray-700">{entry.rating}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
+
 
       {/* Common Tags */}
       {analytics && analytics.commonTags.length > 0 && (
@@ -220,7 +230,7 @@ const Moods = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Common Mood Tags</h3>
           <div className="flex flex-wrap gap-2">
             {analytics.commonTags.map((tag, index) => (
-              <span 
+              <span
                 key={index}
                 className="px-3 py-1 bg-pink-100 text-pink-600 text-sm rounded-full"
               >
@@ -236,7 +246,7 @@ const Moods = () => {
         <div className="p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900">Mood History</h3>
         </div>
-        
+
         {moods.length > 0 ? (
           <div className="divide-y divide-gray-200">
             {moods.map((mood) => (
@@ -269,8 +279,8 @@ const Moods = () => {
       {(showLogForm || editingMood) && (
         <MoodForm
           mood={editingMood}
-          onSave={editingMood ? 
-            (data) => handleUpdateMood(editingMood.id, data) : 
+          onSave={editingMood ?
+            (data) => handleUpdateMood(editingMood.id, data) :
             handleLogMood
           }
           onClose={() => {
@@ -296,7 +306,7 @@ const MoodEntry = ({ mood, onEdit, onDelete, getMoodIcon, getMoodColor }) => {
                 {mood.rating}/10
               </span>
               <span className="text-sm text-gray-500">
-                {new Date(mood.date).toLocaleDateString()}
+                {new Date(mood.createdAt).toLocaleDateString()}
               </span>
             </div>
             {mood.notes && (
@@ -305,7 +315,7 @@ const MoodEntry = ({ mood, onEdit, onDelete, getMoodIcon, getMoodColor }) => {
             {mood.tags && mood.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {mood.tags.map((tag, index) => (
-                  <span 
+                  <span
                     key={index}
                     className="px-2 py-1 bg-white bg-opacity-50 text-gray-600 text-xs rounded-full"
                   >
@@ -351,6 +361,7 @@ const MoodForm = ({ mood, onSave, onClose }) => {
       ...formData,
       date: new Date(formData.date).toISOString()
     }
+    console.log("data: ", data);
     onSave(data)
   }
 
@@ -386,7 +397,7 @@ const MoodForm = ({ mood, onSave, onClose }) => {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             {mood ? 'Edit Mood Entry' : 'Log Your Mood'}
           </h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -397,7 +408,7 @@ const MoodForm = ({ mood, onSave, onClose }) => {
                 min="1"
                 max="10"
                 value={formData.rating}
-                onChange={(e) => setFormData({...formData, rating: parseInt(e.target.value)})}
+                onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -413,7 +424,7 @@ const MoodForm = ({ mood, onSave, onClose }) => {
               <input
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData({...formData, date: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                 required
               />
@@ -425,7 +436,7 @@ const MoodForm = ({ mood, onSave, onClose }) => {
               </label>
               <textarea
                 value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
                 rows="3"
                 placeholder="What's on your mind?"
@@ -456,7 +467,7 @@ const MoodForm = ({ mood, onSave, onClose }) => {
               {formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.tags.map((tag, index) => (
-                    <span 
+                    <span
                       key={index}
                       className="inline-flex items-center px-2 py-1 bg-pink-100 text-pink-600 text-sm rounded-full"
                     >

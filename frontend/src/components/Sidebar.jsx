@@ -102,7 +102,7 @@ const Sidebar = ({ user, onLogout }) => {
               </div>
               <div>
                 <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                <p className="text-xs text-gray-400">{user?.email}</p>
+                <p className="text-[10px] text-gray-400 truncate ">{user?.email}</p>
               </div>
             </div>
             <ChevronDown className={`w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
